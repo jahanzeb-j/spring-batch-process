@@ -1,6 +1,6 @@
 package com.bprocess.batchscheduler;
 
-import com.baeldung.batchscheduler.model.Book;
+import com.bprocess.batchscheduler.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -55,7 +55,7 @@ public class SpringBatchScheduler {
     @Autowired
     private JobLauncher jobLauncher;
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 15000)
     public void launchJob() throws Exception {
         Date date = new Date();
         logger.debug("scheduler starts at " + date);
@@ -142,9 +142,10 @@ public class SpringBatchScheduler {
 
             @Override
             public void write(List<? extends Book> items) throws Exception {
-                logger.debug("writer..." + items.size());
+                logger.info("writer..." + items.size());
+               // logger.info("***NNN");
                 for (Book item : items) {
-                    logger.debug(item.toString());
+                    logger.info(item.toString());
                 }
 
             }
