@@ -142,7 +142,7 @@ public class SpringBatchScheduler {
 
             @Override
             public void write(List<? extends Book> items) throws Exception {
-                logger.info("writer..." + items.size());
+                logger.info("writer items..." + items.size());
                // logger.info("***NNN");
                 for (Book item : items) {
                     logger.info(item.toString());
