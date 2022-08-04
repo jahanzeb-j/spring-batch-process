@@ -11,3 +11,6 @@ Spring batch + scheduler
 * Web page services added
 * port 9090
 ``localhost:9090/``
+* Logging will save in file 
+  * if size max 10 MB it will auto save to archive
+
