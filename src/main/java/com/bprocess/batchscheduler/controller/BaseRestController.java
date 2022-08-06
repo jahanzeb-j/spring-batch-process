@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-
 @RestController
 @RequestMapping("/api")
 @Slf4j
@@ -28,6 +26,7 @@ public class BaseRestController {
         log.info("-----------<<  API   >>---------");
         log.info(" Api response sent ...");
         log.info("-----------<<  API   >>---------");
+
         Book book = new Book();
         book.setId(3);
         book.setName("Nice");
