@@ -1,11 +1,11 @@
-package com.bprocess.batchscheduler.dao;
+package com.bprocess.batchscheduler.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class BatchItem extends BaseDao {
+public class BatchItem extends BaseDto {
 
     private int batchNumber;
     private String name;
