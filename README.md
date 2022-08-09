@@ -14,3 +14,6 @@
 * Logging will save in file 
   * if size max 10 MB it will auto save to archive
 
+## V3 --✔ Working
+* Read file from external folder
+* Connect to DB

@@ -1,4 +1,4 @@
-package com.bprocess.batchscheduler;
+package com.bprocess.batchscheduler.config;
 
 import com.bprocess.batchscheduler.model.Book;
 import org.slf4j.Logger;
