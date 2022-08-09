@@ -1,5 +1,6 @@
 package com.bprocess.batchscheduler.controller;
 
+import com.bprocess.batchscheduler.model.BatchItem;
 import com.bprocess.batchscheduler.model.Book;
 import com.bprocess.batchscheduler.services.ItemProcessService;
 import com.bprocess.batchscheduler.utils.BaseResponse;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BaseRestController {
 
     @Autowired
-    ItemProcessService itemProcessService;
+    public ItemProcessService itemProcessService;
 
     @GetMapping("/get")
     public ResponseEntity getRes(){
@@ -46,10 +47,11 @@ public class BaseRestController {
         log.info("-----------<<  API   >>---------");
         log.error(" Error Api response sent ...");
         log.info("-----------<<  API   >>---------");
-        Book book = new Book();
-        book.setId(3);
-        book.setName("Nice");
-        return ResponseEntity.badRequest().body(new BaseResponse().Error(book));
+
+        BatchItem batchItem = new BatchItem();
+        batchItem.setId(3);
+        batchItem.setName("Nice");
+        return ResponseEntity.badRequest().body(new BaseResponse().Error(batchItem));
     }
 
 }
