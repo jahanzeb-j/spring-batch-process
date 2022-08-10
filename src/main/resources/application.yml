@@ -20,6 +20,7 @@ file:
   name:
     key: fileName
   path:
-    read: file:${user.dir}/../file/*.csv
+    input: batch-test.csv
+    read: file:${user.dir}/../file/batch-test.csv
     success: ${user.dir}/../file/success/
     error: ${user.dir}/../file/error/

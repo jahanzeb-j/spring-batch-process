@@ -1,7 +1,6 @@
 package com.bprocess.batchscheduler.config;
 
 import com.bprocess.batchscheduler.batch.listener.BatchJobListener;
-import com.bprocess.batchscheduler.batch.listener.BatchStepListener;
 import com.bprocess.batchscheduler.batch.processor.BatchItemProcessor;
 import com.bprocess.batchscheduler.model.Book;
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -26,10 +26,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 
-import java.util.Date;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,6 +43,9 @@ public class SpringBatchScheduler {
     private AtomicInteger batchRunCounter = new AtomicInteger(0);
 
     private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();
+
+    @Value("${file.path.input}")
+    private String filePath;
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -112,13 +112,13 @@ public class SpringBatchScheduler {
         return jobBuilderFactory
                 .get("job")
                 .listener(new BatchJobListener())
-                .start(readBooks())
+                .start(mainStep())
                 .build();
     }
 
     @Bean
-    protected Step readBooks() {
-        return stepBuilderFactory.get("readBooks")
+    protected Step mainStep() {
+        return stepBuilderFactory.get("readFile")
                 .<Book, Book> chunk(2)
                 .reader(reader())
                 .processor(processor())
@@ -128,8 +128,8 @@ public class SpringBatchScheduler {
 
     @Bean
     public FlatFileItemReader<Book> reader() {
-        return new FlatFileItemReaderBuilder<Book>().name("bookItemReader")
-                .resource(new ClassPathResource("batch-test.csv"))
+        return new FlatFileItemReaderBuilder<Book>().name("ItemReader")
+                .resource(new ClassPathResource(filePath))
                 .delimited()
                 .names(new String[] { "id", "name" })
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {
@@ -160,6 +160,7 @@ public class SpringBatchScheduler {
                 logger.info("write items..." + items.size());
                // logger.info("***NNN");
                 for (Book item : items) {
+//                    int s = 1/0;
                     logger.info(item.toString());
                 }
 
