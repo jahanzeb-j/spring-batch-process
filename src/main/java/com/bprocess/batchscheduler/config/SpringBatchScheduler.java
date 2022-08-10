@@ -1,13 +1,12 @@
 package com.bprocess.batchscheduler.config;
 
+import com.bprocess.batchscheduler.batch.listener.BatchJobListener;
+import com.bprocess.batchscheduler.batch.listener.BatchStepListener;
 import com.bprocess.batchscheduler.batch.processor.BatchItemProcessor;
 import com.bprocess.batchscheduler.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -61,7 +60,6 @@ public class SpringBatchScheduler {
     public void launchJob() throws Exception {
         Date date = new Date();
         logger.debug("scheduler starts at " + date);
-        try {
             if (enabled.get()) {
 
                 JobExecution jobExecution = jobLauncher.run(job(), new JobParametersBuilder().addDate("launchDate", date)
@@ -70,9 +68,6 @@ public class SpringBatchScheduler {
                 logger.debug("Batch job ends with status as " + jobExecution.getStatus());
             }
             logger.debug("scheduler ends ");
-        }catch (Exception e){
-            logger.error("scheduler ends with ERROR",e.getMessage());
-        }
     }
 
     public void stop() {
@@ -116,6 +111,7 @@ public class SpringBatchScheduler {
     public Job job() {
         return jobBuilderFactory
                 .get("job")
+                .listener(new BatchJobListener())
                 .start(readBooks())
                 .build();
     }
@@ -148,6 +144,11 @@ public class SpringBatchScheduler {
     public ItemProcessor processor() {
         return new BatchItemProcessor();
     }
+    
+//    @Bean
+//    public StepExecutionListener listener(){
+//        return new BatchStepListener();
+//    }
 
 
     @Bean
@@ -156,7 +157,7 @@ public class SpringBatchScheduler {
 
             @Override
             public void write(List<? extends Book> items) throws Exception {
-                logger.info("writer items..." + items.size());
+                logger.info("write items..." + items.size());
                // logger.info("***NNN");
                 for (Book item : items) {
                     logger.info(item.toString());
