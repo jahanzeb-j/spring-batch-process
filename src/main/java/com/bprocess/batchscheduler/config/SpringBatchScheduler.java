@@ -1,5 +1,6 @@
 package com.bprocess.batchscheduler.config;
 
+import com.bprocess.batchscheduler.batch.processor.BatchItemProcessor;
 import com.bprocess.batchscheduler.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -59,13 +61,18 @@ public class SpringBatchScheduler {
     public void launchJob() throws Exception {
         Date date = new Date();
         logger.debug("scheduler starts at " + date);
-        if (enabled.get()) {
-            JobExecution jobExecution = jobLauncher.run(job(), new JobParametersBuilder().addDate("launchDate", date)
-                    .toJobParameters());
-            batchRunCounter.incrementAndGet();
-            logger.debug("Batch job ends with status as " + jobExecution.getStatus());
+        try {
+            if (enabled.get()) {
+
+                JobExecution jobExecution = jobLauncher.run(job(), new JobParametersBuilder().addDate("launchDate", date)
+                        .toJobParameters());
+                batchRunCounter.incrementAndGet();
+                logger.debug("Batch job ends with status as " + jobExecution.getStatus());
+            }
+            logger.debug("scheduler ends ");
+        }catch (Exception e){
+            logger.error("scheduler ends with ERROR",e.getMessage());
         }
-        logger.debug("scheduler ends ");
     }
 
     public void stop() {
@@ -118,6 +125,7 @@ public class SpringBatchScheduler {
         return stepBuilderFactory.get("readBooks")
                 .<Book, Book> chunk(2)
                 .reader(reader())
+                .processor(processor())
                 .writer(writer())
                 .build();
     }
@@ -125,7 +133,7 @@ public class SpringBatchScheduler {
     @Bean
     public FlatFileItemReader<Book> reader() {
         return new FlatFileItemReaderBuilder<Book>().name("bookItemReader")
-                .resource(new ClassPathResource("books.csv"))
+                .resource(new ClassPathResource("batch-test.csv"))
                 .delimited()
                 .names(new String[] { "id", "name" })
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {
@@ -135,6 +143,12 @@ public class SpringBatchScheduler {
                 })
                 .build();
     }
+
+    @Bean
+    public ItemProcessor processor() {
+        return new BatchItemProcessor();
+    }
+
 
     @Bean
     public ItemWriter<Book> writer() {

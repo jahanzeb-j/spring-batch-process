@@ -1,0 +1,25 @@
+
+# Logging config
+logging:
+  config: "src/main/resources/logback-spring.xml"
+
+# web port
+server:
+  port: 9090
+
+# console
+spring:
+  output:
+    ansi:
+      enabled: always
+
+# files
+file:
+  reader:
+    key: fileReader
+  name:
+    key: fileName
+  path:
+    read: file:${user.dir}/../file/*.csv
+    success: ${user.dir}/../file/success/
+    error: ${user.dir}/../file/error/
