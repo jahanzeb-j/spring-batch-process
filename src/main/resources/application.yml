@@ -21,6 +21,7 @@ file:
     key: fileName
   path:
     input: batch-test.csv
-    read: file:${user.dir}/../file/batch-test.csv
+    read: file:${user.dir}/../file/*.csv
+    readSingle: ${user.dir}/../file/batch-test.csv
     success: ${user.dir}/../file/success/
     error: ${user.dir}/../file/error/

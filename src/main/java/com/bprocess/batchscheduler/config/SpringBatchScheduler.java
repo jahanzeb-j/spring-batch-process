@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,7 +45,7 @@ public class SpringBatchScheduler {
 
     private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();
 
-    @Value("${file.path.input}")
+    @Value("${file.path.readSingle}")
     private String filePath;
 
     @Autowired
@@ -129,9 +130,10 @@ public class SpringBatchScheduler {
     @Bean
     public FlatFileItemReader<Book> reader() {
         return new FlatFileItemReaderBuilder<Book>().name("ItemReader")
-                .resource(new ClassPathResource(filePath))
+                .resource(new FileSystemResource(filePath))
                 .delimited()
                 .names(new String[] { "id", "name" })
+                .linesToSkip(1)
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {
                     {
                         setTargetType(Book.class);
