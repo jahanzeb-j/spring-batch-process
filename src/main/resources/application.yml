@@ -23,5 +23,5 @@ file:
     input: batch-test.csv
     read: file:${user.dir}/../file/*.csv
     readSingle: ${user.dir}/../file/batch-test.csv
-    success: ${user.dir}/../file/success/
-    error: ${user.dir}/../file/error/
+    success: ${user.dir}/../file/Success/
+    error: ${user.dir}/../file/Error/
