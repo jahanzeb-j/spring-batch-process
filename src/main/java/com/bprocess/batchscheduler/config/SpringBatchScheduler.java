@@ -11,13 +11,10 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.partition.support.Partitioner;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.MultiResourceItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
@@ -25,12 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -55,11 +49,17 @@ public class SpringBatchScheduler {
 
     private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();
 
-//    @Value("${file.path.readSingle}")
-//    private String filePath;
+    @Value("${file.path.readSingle}")
+    private String filePath;
 
     @Value("${file.path.read}")
     private Resource[] fileResources;
+
+    @Value("${file.path.success}")
+    private String folderSuccessPath;
+
+    @Value("${file.path.error}")
+    private String folderErrorPath;
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -123,8 +123,8 @@ public class SpringBatchScheduler {
     @Bean
     public Job job() {
         return jobBuilderFactory
-                .get("job")
-                .listener(new BatchJobListener())
+                .get("schedulerJob")
+                .listener(new BatchJobListener(fileResources,filePath,folderSuccessPath,folderErrorPath))
                 .start(subStep())
                 .build();
     }
@@ -157,8 +157,8 @@ public class SpringBatchScheduler {
                 .processor(new BatchItemProcessor())
                 .writer(writer())
                 .listener(new BatchStepListener())
-                .taskExecutor(new SimpleAsyncTaskExecutor())
-                .throttleLimit(1)
+//                .taskExecutor(new SimpleAsyncTaskExecutor())
+//                .throttleLimit(1)
                 .build();
     }
 
