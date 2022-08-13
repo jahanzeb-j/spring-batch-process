@@ -1,6 +1,7 @@
 package com.bprocess.batchscheduler.config;
 
 import com.bprocess.batchscheduler.batch.listener.BatchJobListener;
+import com.bprocess.batchscheduler.batch.listener.BatchStepListener;
 import com.bprocess.batchscheduler.batch.processor.BatchItemProcessor;
 import com.bprocess.batchscheduler.model.Book;
 import org.slf4j.Logger;
@@ -10,6 +11,8 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -27,6 +30,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -71,7 +75,6 @@ public class SpringBatchScheduler {
         Date date = new Date();
         logger.debug("scheduler starts at " + date);
             if (enabled.get()) {
-
                 JobExecution jobExecution = jobLauncher.run(job(), new JobParametersBuilder().addDate("launchDate", date)
                         .toJobParameters());
                 batchRunCounter.incrementAndGet();
@@ -121,18 +124,41 @@ public class SpringBatchScheduler {
     public Job job() {
         return jobBuilderFactory
                 .get("job")
-                .listener(new BatchJobListener())
+//                .listener(new BatchJobListener())
                 .start(mainStep())
                 .build();
     }
 
     @Bean
     protected Step mainStep() {
-        return stepBuilderFactory.get("readFile")
+        return stepBuilderFactory.get("readFileMain")
+                .partitioner("subStep", new Partitioner() {
+                    @Override
+                    public Map<String, ExecutionContext> partition(int i) {
+                        HashMap<String, ExecutionContext> partitionHashMap = new HashMap<>();
+                        ExecutionContext executionContext = new ExecutionContext();
+
+                        executionContext.putString("threadName", "Thread"+i);
+
+                        return (Map<String, ExecutionContext>) partitionHashMap.put("hi",executionContext);
+                    }
+                })
+                .step(subStep())
+                .gridSize(1)
+                .taskExecutor(new SimpleAsyncTaskExecutor())
+                .build();
+    }
+
+    @Bean
+    protected Step subStep() {
+        return stepBuilderFactory.get("readFileSub")
                 .<Book, Book> chunk(2)
                 .reader(multiResourceItemReader())
-                .processor(processor())
+                .processor(new BatchItemProcessor())
                 .writer(writer())
+                .listener(new BatchStepListener())
+                .taskExecutor(new SimpleAsyncTaskExecutor())
+                .throttleLimit(1)
                 .build();
     }
 
@@ -141,7 +167,6 @@ public class SpringBatchScheduler {
         MultiResourceItemReader<Book> resourceItemReader = new MultiResourceItemReader<Book>();
         ClassLoader cl = this.getClass().getClassLoader();
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-
         resourceItemReader.setResources(fileResources);
         resourceItemReader.setDelegate(reader());
         return resourceItemReader;
