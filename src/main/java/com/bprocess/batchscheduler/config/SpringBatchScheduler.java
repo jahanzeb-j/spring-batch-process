@@ -124,30 +124,30 @@ public class SpringBatchScheduler {
     public Job job() {
         return jobBuilderFactory
                 .get("job")
-//                .listener(new BatchJobListener())
-                .start(mainStep())
+                .listener(new BatchJobListener())
+                .start(subStep())
                 .build();
     }
 
-    @Bean
-    protected Step mainStep() {
-        return stepBuilderFactory.get("readFileMain")
-                .partitioner("subStep", new Partitioner() {
-                    @Override
-                    public Map<String, ExecutionContext> partition(int i) {
-                        HashMap<String, ExecutionContext> partitionHashMap = new HashMap<>();
-                        ExecutionContext executionContext = new ExecutionContext();
-
-                        executionContext.putString("threadName", "Thread"+i);
-
-                        return (Map<String, ExecutionContext>) partitionHashMap.put("hi",executionContext);
-                    }
-                })
-                .step(subStep())
-                .gridSize(1)
-                .taskExecutor(new SimpleAsyncTaskExecutor())
-                .build();
-    }
+//    @Bean
+//    protected Step mainStep() {
+//        return stepBuilderFactory.get("readFileMain")
+//                .partitioner("subStep", new Partitioner() {
+//                    @Override
+//                    public Map<String, ExecutionContext> partition(int i) {
+//                        HashMap<String, ExecutionContext> partitionHashMap = new HashMap<>();
+//                        ExecutionContext executionContext = new ExecutionContext();
+//
+//                        executionContext.putString("threadName", "Thread"+i);
+//
+//                        return (Map<String, ExecutionContext>) partitionHashMap.put("hi",executionContext);
+//                    }
+//                })
+//                .step(subStep())
+//                .gridSize(1)
+//                .taskExecutor(new SimpleAsyncTaskExecutor())
+//                .build();
+//    }
 
     @Bean
     protected Step subStep() {
