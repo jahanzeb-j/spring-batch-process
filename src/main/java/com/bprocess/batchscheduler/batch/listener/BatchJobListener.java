@@ -14,8 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class BatchJobListener implements JobExecutionListener {
@@ -53,7 +55,8 @@ public class BatchJobListener implements JobExecutionListener {
             //fileReader.closeLineNumberReader();
             for (Resource res: fileResources ) {
                 fileReadPath = res.getFile().getAbsolutePath();
-//                log.info("Moved file  {} to Success folder", fileReadPath);
+                fileName = res.getFile().getName();
+                log.info("Moved file  {} to Success folder", fileName);
                 this.moveFileToFolder(jobExecution.getExitStatus().getExitCode());
             }
 //            this.moveFileToFolder(jobExecution.getExitStatus().getExitCode());
@@ -66,7 +69,11 @@ public class BatchJobListener implements JobExecutionListener {
 
     private void moveFileToFolder(String exitStatus) throws IOException {
         final Path source = Paths.get(fileReadPath);
-        fileName = "data-"+ DateFormat.getDateInstance().getNumberFormat().format(new Date().getTime())+".csv" ;
+        String[] extension = fileName.split("\\.");
+        String formattedDate = new SimpleDateFormat("YYYYMMddHHmmss").format(new Date().getTime());
+        fileName = extension[0] + "-data-"
+                + formattedDate
+                +"."+extension[1] ;
         switch(exitStatus) {
             case "COMPLETED":
                 log.info("Moved file  {} to Success folder", fileReadPath);
