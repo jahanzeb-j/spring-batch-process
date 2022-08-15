@@ -56,7 +56,7 @@ public class BatchJobListener implements JobExecutionListener {
             for (Resource res: fileResources ) {
                 fileReadPath = res.getFile().getAbsolutePath();
                 fileName = res.getFile().getName();
-                log.info("Moved file  {} to Success folder", fileName);
+                log.info("File name:  {} ", fileName);
                 this.moveFileToFolder(jobExecution.getExitStatus().getExitCode());
             }
 //            this.moveFileToFolder(jobExecution.getExitStatus().getExitCode());
@@ -70,8 +70,8 @@ public class BatchJobListener implements JobExecutionListener {
     private void moveFileToFolder(String exitStatus) throws IOException {
         final Path source = Paths.get(fileReadPath);
         String[] extension = fileName.split("\\.");
-        String formattedDate = new SimpleDateFormat("YYYYMMddHHmmss").format(new Date().getTime());
-        fileName = extension[0] + "-data-"
+        String formattedDate = new SimpleDateFormat("YYYYMMdd_HHmmss").format(new Date().getTime());
+        fileName = extension[0] + "_data_"
                 + formattedDate
                 +"."+extension[1] ;
         switch(exitStatus) {

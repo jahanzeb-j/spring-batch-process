@@ -13,6 +13,23 @@ spring:
     ansi:
       enabled: always
 
+# Datasource
+  profile: dev-local
+  datasource:
+    jdbcUrl: jdbc:postgresql://localhost:5432/prod_smart_cms
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  batch:
+    initialize-schema: always
+  profiles:
+    include:
+      - sql
+  data:
+    jpa:
+      repositories:
+        enabled: false
+
 # files
 file:
   reader:
