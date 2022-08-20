@@ -4,6 +4,7 @@ import com.bprocess.batchscheduler.batch.listener.BatchJobListener;
 import com.bprocess.batchscheduler.batch.listener.BatchStepListener;
 import com.bprocess.batchscheduler.batch.processor.BatchItemProcessor;
 import com.bprocess.batchscheduler.model.Book;
+import com.bprocess.batchscheduler.services.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -50,7 +51,7 @@ public class SpringBatchScheduler {
     private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();
 
     @Value("${file.path.readSingle}")
-    private String filePath;
+    private String singleFilePath;
 
     @Value("${file.path.read}")
     private Resource[] fileResources;
@@ -70,11 +71,20 @@ public class SpringBatchScheduler {
     @Autowired
     private JobLauncher jobLauncher;
 
+    @Autowired
+    private SchedulerService schedulerService;
+
     @Scheduled(fixedRate = 15000)
     public void launchJob() throws Exception {
         Date date = new Date();
         logger.debug("scheduler starts at " + date);
-            if (enabled.get()) {
+        logger.info("------------------>> Check Scheduler status from DB");
+        boolean check = schedulerService.checkSchedulerStatus();
+        logger.info("------------------>>{}",check);
+        if(!check){ this.stop();}
+        else {this.start();}
+
+        if (enabled.get()) {
                 JobExecution jobExecution = jobLauncher.run(job(), new JobParametersBuilder().addDate("launchDate", date)
                         .toJobParameters());
                 batchRunCounter.incrementAndGet();
@@ -124,7 +134,7 @@ public class SpringBatchScheduler {
     public Job job() {
         return jobBuilderFactory
                 .get("schedulerJob")
-                .listener(new BatchJobListener(fileResources,filePath,folderSuccessPath,folderErrorPath))
+                .listener(new BatchJobListener(fileResources, singleFilePath,folderSuccessPath,folderErrorPath))
                 .start(subStep())
                 .build();
     }
@@ -132,20 +142,9 @@ public class SpringBatchScheduler {
 //    @Bean
 //    protected Step mainStep() {
 //        return stepBuilderFactory.get("readFileMain")
-//                .partitioner("subStep", new Partitioner() {
-//                    @Override
-//                    public Map<String, ExecutionContext> partition(int i) {
-//                        HashMap<String, ExecutionContext> partitionHashMap = new HashMap<>();
-//                        ExecutionContext executionContext = new ExecutionContext();
-//
-//                        executionContext.putString("threadName", "Thread"+i);
-//
-//                        return (Map<String, ExecutionContext>) partitionHashMap.put("hi",executionContext);
-//                    }
-//                })
-//                .step(subStep())
-//                .gridSize(1)
-//                .taskExecutor(new SimpleAsyncTaskExecutor())
+//                .partitioner(subStep())
+//                //.gridSize(1)
+//               // .taskExecutor(new SimpleAsyncTaskExecutor())
 //                .build();
 //    }
 
@@ -190,7 +189,7 @@ public class SpringBatchScheduler {
 //    @Bean
 //    public FlatFileItemReader<Book> reader() {
 //        return new FlatFileItemReaderBuilder<Book>().name("ItemReader")
-//                .resource(new FileSystemResource(filePath))
+//                .resource(new FileSystemResource(singleFilePath))
 //                .delimited()
 //                .names(new String[] { "id", "name" })
 //                .linesToSkip(1)
