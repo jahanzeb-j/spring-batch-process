@@ -10,16 +10,38 @@
   Let's have test
 </p>
 </br>
-</hr>
-
+<hr>
 <p>Batch Process Queue</p>
+
+<p> <input type="checkbox" id="isActive" title="Active" value="true"> Active </p>
+
 <button onclick="onClickRef()" >Refresh</button>
 
 <p>Status:</p><span id="status">No data</span>
 
+
+</br><hr>
+
+<table>
+    <thead>
+    <tr><th>Id</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>Process1</td>
+    <td>dd</td></tr>
+    <tr><td>Process1</td></tr>
+    </tbody>
+</table>
+
 </body>
 <script>
-    function onClickRef() {
+<!--    Redirect -->
+    window.location.href = "/process"
+
+// extras
+function onClickRef() {
        // alert("ddd");
         const showTxt =   document.getElementById("status")
         showTxt.innerText="Loading..."

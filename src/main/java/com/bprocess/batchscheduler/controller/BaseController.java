@@ -16,6 +16,12 @@ public class BaseController {
         return "index.html";
     }
 
+    @RequestMapping("/process")
+    public String returnProcessHtml(){
+        return "process.html";
+    }
+
+
     @RequestMapping("/err")
     @ResponseBody
     public String logError(){
