@@ -28,7 +28,9 @@ spring:
   data:
     jpa:
       repositories:
-        enabled: false
+        enabled: true
+      hibernate:
+        ddl-auto: none
 
 # files
 file:

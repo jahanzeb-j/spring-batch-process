@@ -247,11 +247,11 @@
                 let status = this.isSchActive;
                 console.log('clickActiveScheduler..');
                 let res = await axios.post("/api/changeSchedulerStatus/"+status)
-                .then(res => this.isSchActive = res.data.data)
-                .catch(error => {
-                    this.errorMessage = error.message;
-                    console.error("There was an error!", error);
-                });
+                // .then(res => //this.isSchActive = res.data.data)
+                // .catch(error => {
+                //     this.errorMessage = error.message;
+                //     console.error("There was an error!", error);
+                // });
 
                 console.log(res);
             }

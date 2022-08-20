@@ -3,6 +3,7 @@ package com.bprocess.batchscheduler.controller;
 import com.bprocess.batchscheduler.model.BatchItem;
 import com.bprocess.batchscheduler.model.Book;
 import com.bprocess.batchscheduler.services.ItemProcessService;
+import com.bprocess.batchscheduler.services.SchedulerService;
 import com.bprocess.batchscheduler.utils.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class BaseRestController {
 
     @Autowired
     public ItemProcessService itemProcessService;
+
+    @Autowired
+    public SchedulerService schedulerService;
 
     @GetMapping("/get")
     public ResponseEntity getRes(){
@@ -58,7 +62,9 @@ public class BaseRestController {
     public ResponseEntity getSchedulerStatus(){
         log.info("-----------<<  API   >>---------");
         log.info("-----------<<  checkSchedulerStatus   >>---------");
-        boolean status = true;
+        boolean status = schedulerService.checkSchedulerStatus();
+        log.info("-----------<<  {}   >>---------",status);
+
         return ResponseEntity.ok(new BaseResponse().Success(status));
     }
 
@@ -68,7 +74,8 @@ public class BaseRestController {
         log.info("-----------<<  changeSchedulerStatus   >>---------");
         log.info(String.valueOf(status));
         boolean req = true;
-        return ResponseEntity.ok(new BaseResponse().Success(true));
+        req = schedulerService.setSchedulerStatus(status);
+        return ResponseEntity.ok(new BaseResponse().Success(req));
     }
 
 }
