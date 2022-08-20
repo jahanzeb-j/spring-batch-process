@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         window.Vue = Vue;
-        Vue.use(VuePlugin);
+        //Vue.use(VuePlugin);
     </script>
 </head>
 <body>
@@ -32,13 +32,15 @@
             <!-- User Interface controls -->
             <b-row>
                 <b-col md="6" class="my-1">
-                    <b-btn class="btn sm btn-warning" ><b-icon icon="arrow-clockwise" title="Refresh"></b-icon></b-btn>
+                    <b-btn class="btn sm btn-warning"
+                    @click="checkActiveScheduler"
+                    ><b-icon icon="arrow-clockwise" title="Refresh"></b-icon></b-btn>
                     <div class="mt-4" >
-                        <b-form-checkbox v-model="isActive" name="check-button" button
-                                         :button-variant="isActive?'success':'danger'"
+                        <b-form-checkbox v-model="isSchActive" name="check-button" button
+                                         :button-variant="isSchActive?'success':'danger'"
                                         @change="clickActiveScheduler"
                         >
-                            Scheduler Status <b>({{ isActive?"Active":"Inactive" }})</b>
+                            Scheduler Status <b>({{ isSchActive?"Active":"Inactive" }})</b>
                         </b-form-checkbox>
                     </div>
 <!--                    <b-alert-->
@@ -195,15 +197,15 @@
             sortDesc: false,
             sortDirection: 'asc',
             filter: null,
-            isActive: true,
+            isSchActive: false,
             modalInfo: { title: '', content: '' },
             dismissSecs: 33,
             dismissCountDown: 0,
             showDismissibleAlert: false
         },
-        mounted() {
+         mounted() {
             console.log('app created...');
-            this.checkActiveScheduler();
+           this.checkActiveScheduler();
         },
         computed: {
             sortOptions () {
@@ -234,21 +236,23 @@
             showAlert() {
                 this.dismissCountDown = this.dismissSecs
             },
-            checkActiveScheduler(){
+            async checkActiveScheduler(){
 
                 console.log('checkActiveScheduler..');
-                let res = axios.get("/api/checkSchedulerStatus");
+                let res = await axios.get("/api/checkSchedulerStatus");
                 console.log(res.data);
+                this.isSchActive = res.data.data;
             },
-            clickActiveScheduler(){
-                let status = this.isActive;
+            async clickActiveScheduler() {
+                let status = this.isSchActive;
                 console.log('clickActiveScheduler..');
-                let res = axios.post("/api/changeSchedulerStatus",JSON.stringify(status));
-                    // .then(response => this.body = response.data.id)
-                    // .catch(error => {
-                    //     this.errorMessage = error.message;
-                    //     console.error("There was an error!", error);
-                    // });
+                let res = await axios.post("/api/changeSchedulerStatus/"+status)
+                .then(res => this.isSchActive = res.data.data)
+                .catch(error => {
+                    this.errorMessage = error.message;
+                    console.error("There was an error!", error);
+                });
+
                 console.log(res);
             }
         },
