@@ -1,23 +1,18 @@
 package com.bprocess.batchscheduler.batch.listener;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class BatchJobListener implements JobExecutionListener {
@@ -93,12 +88,13 @@ public class BatchJobListener implements JobExecutionListener {
 
     private boolean fileHelper(String filePath) throws IOException {
 
-        boolean res = Files.exists(Paths.get(filePath));
+        final Path path = Paths.get(filePath);
+        boolean res = Files.exists(path);
         if(res) {
             log.info("The directory already exists.");
         }
         else {
-            Files.createDirectory(Paths.get(filePath));
+            Files.createDirectory(path);
             log.info("The directory has been created.");
         }
         return res;

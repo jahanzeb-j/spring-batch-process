@@ -18,7 +18,7 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @Override
     public boolean checkSchedulerStatus() {
-        Long id = Long.valueOf(1);
+        Long id = Long.valueOf(Constants.schedulerbProcessId);
         boolean status = false;
         Optional<SchedulerEntity> opSchedulerEntity = schedulerRepository.findById(id);
         SchedulerEntity schedulerEntity = null;
