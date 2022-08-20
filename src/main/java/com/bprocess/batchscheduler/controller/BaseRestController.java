@@ -18,10 +18,10 @@ import javax.websocket.server.PathParam;
 public class BaseRestController {
 
     @Autowired
-    public ItemProcessService itemProcessService;
+    private ItemProcessService itemProcessService;
 
     @Autowired
-    public SchedulerService schedulerService;
+    private SchedulerService schedulerService;
 
     @GetMapping("/get")
     public ResponseEntity getRes(){

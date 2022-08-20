@@ -14,7 +14,7 @@ import java.util.Optional;
 public class SchedulerServiceImpl implements SchedulerService {
     
     @Autowired
-    SchedulerRepository schedulerRepository;
+    private SchedulerRepository schedulerRepository;
 
     @Override
     public boolean checkSchedulerStatus() {

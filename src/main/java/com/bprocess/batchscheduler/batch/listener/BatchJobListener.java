@@ -82,7 +82,7 @@ public class BatchJobListener implements JobExecutionListener {
                 Files.move(source, Paths.get(folderErrorPath+fileName)); }
                 break;
             default:
-                log.warn("Files not moved. -found different job exit Status");
+                log.warn("Files not moved.. {} -found different job exit Status",exitStatus);
         }
     }
 
@@ -91,11 +91,11 @@ public class BatchJobListener implements JobExecutionListener {
         final Path path = Paths.get(filePath);
         boolean res = Files.exists(path);
         if(res) {
-            log.info("The directory already exists.");
+            log.debug("The directory already exists.");
         }
         else {
             Files.createDirectory(path);
-            log.info("The directory has been created.");
+            log.debug("The directory has been created.");
         }
         return res;
     }
