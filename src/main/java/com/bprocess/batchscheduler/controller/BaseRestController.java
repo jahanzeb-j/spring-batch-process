@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,6 +53,20 @@ public class BaseRestController {
         batchItem.setId(3);
         batchItem.setName("Nice");
         return ResponseEntity.badRequest().body(new BaseResponse().Error(batchItem));
+    }
+
+    @GetMapping("/checkSchedulerStatus")
+    public ResponseEntity getSchedulerStatus(){
+        log.info("-----------<<  API   >>---------");
+        boolean status = true;
+        return ResponseEntity.badRequest().body(new BaseResponse().Success(true));
+    }
+
+    @PostMapping("/changeSchedulerStatus")
+    public ResponseEntity postSchedulerStatus(){
+        log.info("-----------<<  API   >>---------");
+        boolean status = true;
+        return ResponseEntity.badRequest().body(new BaseResponse().Success(true));
     }
 
 }
