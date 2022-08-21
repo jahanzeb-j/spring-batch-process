@@ -4,6 +4,7 @@ import com.bprocess.batchscheduler.dto.TaskQueueDto;
 import com.bprocess.batchscheduler.repository.TaskQueueRepository;
 import com.bprocess.batchscheduler.repository.entity.TaskQueueEntity;
 import com.bprocess.batchscheduler.services.TaskQueueService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,9 @@ public class TaskQueueServiceImpl implements TaskQueueService {
 
       taskQueueEntityList.stream().forEach(taskQueueEntity -> {
           TaskQueueDto taskQueueDto = new TaskQueueDto();
-          taskQueueDto.setContent(taskQueueEntity.getContent());
-          taskQueueDto.setId(taskQueueEntity.getId());
+          //taskQueueDto.setContent(taskQueueEntity.getContent());
+         // taskQueueDto.setId(taskQueueEntity.getId());
+          BeanUtils.copyProperties(taskQueueEntity,taskQueueDto);
           taskQueueDtoList.add(taskQueueDto);
       });
       return taskQueueDtoList;
