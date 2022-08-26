@@ -16,4 +16,7 @@
 
 ## V3 --✔ Working
 * Read file from external folder
-* Connect to DB
+* ✔  Connect to DB
+* ✔ Vue.js html page added
+* ✔ Hibernate added
+* MyBatis add

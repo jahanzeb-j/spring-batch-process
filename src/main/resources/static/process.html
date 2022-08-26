@@ -156,28 +156,28 @@
 <script type="text/javascript">
 
     const items = [
-        { isActive: true, age: 40, name: { first: 'Dickerson', last: 'Macdonald' } },
-        { isActive: false, age: 21, name: { first: 'Larsen', last: 'Shaw' } },
+        { isActive: true, id: 40, name: { first: 'Process', last: '1' } },
+        { isActive: false, id: 21, name: { first: 'Larsen', last: 'Shaw' } },
         {
             isActive: false,
-            age: 9,
+            id: 9,
             name: { first: 'Mini', last: 'Navarro' },
             _rowVariant: 'success'
         },
-        { isActive: false, age: 89, name: { first: 'Geneva', last: 'Wilson' } },
-        { isActive: true, age: 38, name: { first: 'Jami', last: 'Carney' } },
-        { isActive: false, age: 27, name: { first: 'Essie', last: 'Dunlap' } },
-        { isActive: true, age: 40, name: { first: 'Thor', last: 'Macdonald' } },
+        { isActive: false, id: 89, name: { first: 'Geneva', last: 'Wilson' } },
+        { isActive: true, id: 38, name: { first: 'Jami', last: 'Carney' } },
+        { isActive: false, id: 27, name: { first: 'Essie', last: 'Dunlap' } },
+        { isActive: true, id: 40, name: { first: 'Thor', last: 'Macdonald' } },
         {
             isActive: true,
-            age: 87,
+            id: 87,
             name: { first: 'Larsen', last: 'Shaw' },
-            _cellVariants: { age: 'danger', isActive: 'warning' }
+            _cellVariants: { id: 'danger', isActive: 'warning' }
         },
-        { isActive: false, age: 26, name: { first: 'Mitzi', last: 'Navarro' } },
-        { isActive: false, age: 22, name: { first: 'Genevieve', last: 'Wilson' } },
-        { isActive: true, age: 38, name: { first: 'John', last: 'Carney' } },
-        { isActive: false, age: 29, name: { first: 'Dick', last: 'Dunlap' } }
+        { isActive: false, id: 26, name: { first: 'Mitzi', last: 'Navarro' } },
+        { isActive: false, id: 22, name: { first: 'Genevieve', last: 'Wilson' } },
+        { isActive: true, id: 38, name: { first: 'John', last: 'Carney' } },
+        { isActive: false, id: 29, name: { first: 'Dick', last: 'Dunlap' } }
     ];
     var app=  new Vue({
         el: '#vm',
@@ -185,7 +185,7 @@
             items: items,
             fields: [
                 { key: 'name', label: 'Person Full name', sortable: true, sortDirection: 'desc' },
-                { key: 'age', label: 'Person age', sortable: true, 'class': 'text-center' },
+                { key: 'id', label: 'Id', sortable: true, 'class': 'text-center' },
                 { key: 'isActive', label: 'is Active' },
                 { key: 'actions', label: 'Actions' }
             ],
