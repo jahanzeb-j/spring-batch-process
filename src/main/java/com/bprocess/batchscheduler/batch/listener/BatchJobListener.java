@@ -96,6 +96,7 @@ public class BatchJobListener implements JobExecutionListener {
         else {
             Files.createDirectory(path);
             log.debug("The directory has been created.");
+            res = Files.exists(path);
         }
         return res;
     }
