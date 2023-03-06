@@ -53,8 +53,8 @@ public class SpringBatchScheduler {
     @Value("${file.path.readSingle}")
     private String singleFilePath;
 
-    @Value("${file.path.read}")
-    private Resource[] fileResources;
+    // @Value("${file.path.read}")
+    // private Resource[] fileResources;
 
     @Value("${file.path.success}")
     private String folderSuccessPath;
@@ -74,23 +74,41 @@ public class SpringBatchScheduler {
     @Autowired
     private SchedulerService schedulerService;
 
+    @Autowired
+    private YMLConfig ymlConfig;
+
     @Scheduled(fixedRate = 15000)
     public void launchJob() throws Exception {
         Date date = new Date();
         logger.debug("scheduler starts at " + date);
         logger.info("------------------>> Check Scheduler status from DB");
         boolean check = schedulerService.checkSchedulerStatus();
-        logger.info("------------------>>{}",check);
-        if(!check){ this.stop();}
-        else {this.start();}
+        logger.info("------------------>>{}", check);
+        if (!check) {
+            this.stop();
+        } else {
+            this.start();
+        }
 
         if (enabled.get()) {
-                JobExecution jobExecution = jobLauncher.run(job(), new JobParametersBuilder().addDate("launchDate", date)
-                        .toJobParameters());
-                batchRunCounter.incrementAndGet();
-                logger.debug("Batch job ends with status as " + jobExecution.getStatus());
+            // Refresh resources
+            String resourcePath = ymlConfig.getPath();
+            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            Resource[] resources = null;
+
+            resources = resolver.getResources(resourcePath);
+            if (Arrays.stream(resources).count() > 0) {
+                logger.info("->>File name {}", Arrays.stream(resources).findFirst().get().getURL());
             }
-            logger.debug("scheduler ends ");
+
+            // start job
+            JobExecution jobExecution = jobLauncher.run(job(resources),
+                    new JobParametersBuilder().addDate("launchDate", date)
+                            .toJobParameters());
+            batchRunCounter.incrementAndGet();
+            logger.debug("Batch job ends with status as " + jobExecution.getStatus());
+        }
+        logger.debug("scheduler ends ");
     }
 
     public void stop() {
@@ -130,98 +148,97 @@ public class SpringBatchScheduler {
         });
     }
 
-    @Bean
-    public Job job() {
+    public Job job(Resource[] resources) {
         return jobBuilderFactory
                 .get("schedulerJob")
-                .listener(new BatchJobListener(fileResources, singleFilePath,folderSuccessPath,folderErrorPath))
-                .start(subStep())
+                .listener(new BatchJobListener(resources, singleFilePath, folderSuccessPath, folderErrorPath))
+                .start(subStep(resources))
                 .build();
     }
 
-//    @Bean
-//    protected Step mainStep() {
-//        return stepBuilderFactory.get("readFileMain")
-//                .partitioner(subStep())
-//                //.gridSize(1)
-//               // .taskExecutor(new SimpleAsyncTaskExecutor())
-//                .build();
-//    }
+    // @Bean
+    // protected Step mainStep() {
+    // return stepBuilderFactory.get("readFileMain")
+    // .partitioner(subStep())
+    // //.gridSize(1)
+    // // .taskExecutor(new SimpleAsyncTaskExecutor())
+    // .build();
+    // }
 
-    @Bean
-    protected Step subStep() {
+    protected Step subStep(Resource[] resources) {
         return stepBuilderFactory.get("readFileSub")
-                .<Book, Book> chunk(2)
-                .reader(multiResourceItemReader())
+                .<Book, Book>chunk(2)
+                .reader(multiResourceItemReader(resources))
                 .processor(new BatchItemProcessor())
                 .writer(writer())
                 .listener(new BatchStepListener())
-//                .taskExecutor(new SimpleAsyncTaskExecutor())
-//                .throttleLimit(1)
+                // .taskExecutor(new SimpleAsyncTaskExecutor())
+                // .throttleLimit(1)
                 .build();
     }
 
-    @Bean
-    public MultiResourceItemReader<Book> multiResourceItemReader() {
+    public MultiResourceItemReader<Book> multiResourceItemReader(Resource[] resources) {
         MultiResourceItemReader<Book> resourceItemReader = new MultiResourceItemReader<Book>();
         ClassLoader cl = this.getClass().getClassLoader();
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-        resourceItemReader.setResources(fileResources);
+        resourceItemReader.setResources(resources);
         resourceItemReader.setDelegate(reader());
         return resourceItemReader;
     }
 
-    @Bean
     public FlatFileItemReader<Book> reader() {
         FlatFileItemReader<Book> reader = new FlatFileItemReader<Book>();
-        reader.setLineMapper(new DefaultLineMapper() {{
-            setLineTokenizer(new DelimitedLineTokenizer() {{
-                setNames(new String[]{"Id", "Name"});
-            }});
-            setFieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {{
-                setTargetType(Book.class);
-            }});
-        }});
+        reader.setLineMapper(new DefaultLineMapper() {
+            {
+                setLineTokenizer(new DelimitedLineTokenizer() {
+                    {
+                        setNames(new String[] { "Id", "Name" });
+                    }
+                });
+                setFieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {
+                    {
+                        setTargetType(Book.class);
+                    }
+                });
+            }
+        });
         reader.setLinesToSkip(1);
         return reader;
     }
-//  Single file read
-//    @Bean
-//    public FlatFileItemReader<Book> reader() {
-//        return new FlatFileItemReaderBuilder<Book>().name("ItemReader")
-//                .resource(new FileSystemResource(singleFilePath))
-//                .delimited()
-//                .names(new String[] { "id", "name" })
-//                .linesToSkip(1)
-//                .fieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {
-//                    {
-//                        setTargetType(Book.class);
-//                    }
-//                })
-//                .build();
-//    }
+    // Single file read
+    // @Bean
+    // public FlatFileItemReader<Book> reader() {
+    // return new FlatFileItemReaderBuilder<Book>().name("ItemReader")
+    // .resource(new FileSystemResource(singleFilePath))
+    // .delimited()
+    // .names(new String[] { "id", "name" })
+    // .linesToSkip(1)
+    // .fieldSetMapper(new BeanWrapperFieldSetMapper<Book>() {
+    // {
+    // setTargetType(Book.class);
+    // }
+    // })
+    // .build();
+    // }
 
-    @Bean
     public ItemProcessor processor() {
         return new BatchItemProcessor();
     }
-    
-//    @Bean
-//    public StepExecutionListener listener(){
-//        return new BatchStepListener();
-//    }
 
+    // @Bean
+    // public StepExecutionListener listener(){
+    // return new BatchStepListener();
+    // }
 
-    @Bean
     public ItemWriter<Book> writer() {
         return new ItemWriter<Book>() {
 
             @Override
             public void write(List<? extends Book> items) throws Exception {
                 logger.info("write items..." + items.size());
-               // logger.info("***NNN");
+                // logger.info("***NNN");
                 for (Book item : items) {
-//                    int s = 1/0;
+                    // int s = 1/0;
                     logger.info(item.toString());
                 }
 
