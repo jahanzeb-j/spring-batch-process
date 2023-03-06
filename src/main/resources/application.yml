@@ -35,7 +35,7 @@ spring:
 # files
 file:
   reader:
-    key: fileReader
+    path: file:${user.dir}/../file/*.csv
   name:
     key: fileName
   path:
