@@ -4,15 +4,16 @@ import com.bprocess.batchscheduler.repository.SchedulerRepository;
 import com.bprocess.batchscheduler.repository.entity.SchedulerEntity;
 import com.bprocess.batchscheduler.services.SchedulerService;
 import com.bprocess.batchscheduler.utils.Constants;
+import com.bprocess.batchscheduler.utils.StatusEnum;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 public class SchedulerServiceImpl implements SchedulerService {
-    
+
     @Autowired
     private SchedulerRepository schedulerRepository;
 
@@ -23,7 +24,7 @@ public class SchedulerServiceImpl implements SchedulerService {
         Optional<SchedulerEntity> opSchedulerEntity = schedulerRepository.findById(id);
         SchedulerEntity schedulerEntity = null;
 
-        if(opSchedulerEntity.isPresent()) {
+        if (opSchedulerEntity.isPresent()) {
             schedulerEntity = opSchedulerEntity.get();
             System.out.println(schedulerEntity.getStatus());
             switch (schedulerEntity.getStatus()) {
@@ -35,7 +36,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                     break;
             }
         }
-       return status;
+        return status;
     }
 
     @Override
@@ -43,16 +44,16 @@ public class SchedulerServiceImpl implements SchedulerService {
         int status = 0;
         SchedulerEntity schedulerEntity = new SchedulerEntity();
         if (!(value)) {
-            status = 0;
+            status = StatusEnum.INACTIVE.getStatus();
         } else if (value) {
-            status = 1;
+            status = StatusEnum.ACTIVE.getStatus();
         }
         schedulerEntity.setId(Long.valueOf(Constants.schedulerbProcessId)); // batchProcess scheduler
         schedulerEntity.setName(Constants.schedulerbProcessName);
         schedulerEntity.setStatus(status);
 
         schedulerRepository.save(schedulerEntity);
-        
+
         return value;
     }
 }
